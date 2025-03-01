@@ -12,6 +12,8 @@ const urlParams = new URLSearchParams(window.location.search);
 const isAdmin = urlParams.get("admin") === "true";
 if (isAdmin) {
   document.body.classList.add("admin-mode");
+} else {
+  showSection("dashboard"); // Default to dashboard for non-admins
 }
 
 // Load saved data from localStorage
@@ -31,6 +33,16 @@ function loadData() {
   updateDisplay();
 }
 loadData();
+
+// Show Section
+function showSection(sectionId) {
+  const sections = document.querySelectorAll(".section");
+  sections.forEach(section => {
+    section.style.display = "none";
+  });
+  document.getElementById(sectionId).style.display = "block";
+  if (sectionId === "schedule") generateSchedule(); // Refresh schedule on display
+}
 
 // Add Player (Admin Only)
 function addPlayer(team) {
@@ -198,6 +210,7 @@ function updateDisplay() {
     li.innerHTML = `${player} <button class="remove-btn" onclick="removePlayer('Spartans', '${player}')">Remove</button>`;
     spartansList.appendChild(li);
   });
-
-  generateSchedule();
 }
+
+// Show dashboard on load for admins
+if (isAdmin) showSection("dashboard");

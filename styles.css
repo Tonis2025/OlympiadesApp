@@ -32,7 +32,7 @@ h1 {
 #spartans-score { color: #e74c3c; }
 
 /* Sections */
-#schedule, #games, #schedule-form, #player-setup {
+.section {
   margin-top: 20px;
   background: #fff;
   padding: 15px;
@@ -54,6 +54,12 @@ h4 {
   font-size: 1.1em;
   color: #2c3e50;
   margin: 10px 0;
+}
+
+h5 {
+  font-size: 1em;
+  color: #2c3e50;
+  margin: 5px 0;
 }
 
 /* Inputs */
@@ -197,6 +203,9 @@ div[id$="-subteams"] {
   }
   h4 {
     font-size: 1em;
+  }
+  h5 {
+    font-size: 0.9em;
   }
   input[type="text"], input[type="number"], select {
     width: 100%;
