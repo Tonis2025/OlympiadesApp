@@ -5,21 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Olympiades Scoreboard - Admin</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-  <h1>Olympiades: Paname vs. Spartans</h1>
-  <div id="teams">
-    <h2>Paname: <span id="paname-score">0</span></h2>
-    <h2>Spartans: <span id="spartans-score">0</span></h2>
-  </div>
+  <header>
+    <h1>Olympiades: Paname vs. Spartans</h1>
+    <div id="teams">
+      <h2>Paname: <span id="paname-score">0</span></h2>
+      <h2>Spartans: <span id="spartans-score">0</span></h2>
+    </div>
+  </header>
 
   <!-- Dashboard (Admin Only) -->
   <div id="dashboard" class="admin-only section">
     <h3>Admin Dashboard</h3>
-    <button onclick="showSection('team-setup')">Set-up Team</button>
-    <button onclick="showSection('bracket-org')">Organise Brackets</button>
-    <button onclick="showSection('schedule')">Schedule Games</button>
-    <button onclick="showSection('results')">Update Results</button>
+    <div class="dashboard-grid">
+      <button onclick="showSection('team-setup')"><i class="fas fa-users"></i> Set-up Team</button>
+      <button onclick="showSection('bracket-org')"><i class="fas fa-trophy"></i> Organise Brackets</button>
+      <button onclick="showSection('schedule')"><i class="fas fa-calendar-alt"></i> Schedule Games</button>
+      <button onclick="showSection('results')"><i class="fas fa-chart-bar"></i> Update Results</button>
+    </div>
   </div>
 
   <!-- Team Setup (Admin Only) -->
@@ -29,7 +34,7 @@
       <h4>Paname</h4>
       <div class="player-input">
         <input type="text" id="paname-add-player" placeholder="Add player (e.g., Alice)">
-        <button onclick="addPlayer('Paname')">Add</button>
+        <button onclick="addPlayer('Paname')"><i class="fas fa-plus"></i> Add</button>
       </div>
       <ul id="paname-player-list" class="player-list"></ul>
     </div>
@@ -37,11 +42,11 @@
       <h4>Spartans</h4>
       <div class="player-input">
         <input type="text" id="spartans-add-player" placeholder="Add player (e.g., Max)">
-        <button onclick="addPlayer('Spartans')">Add</button>
+        <button onclick="addPlayer('Spartans')"><i class="fas fa-plus"></i> Add</button>
       </div>
       <ul id="spartans-player-list" class="player-list"></ul>
     </div>
-    <button onclick="showSection('dashboard')">Back to Dashboard</button>
+    <button onclick="showSection('dashboard')" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
   </div>
 
   <!-- Bracket Organisation (Admin Only) -->
@@ -60,7 +65,7 @@
       <button onclick="setupSubTeams('Pétanque')">Setup Sub-Teams</button>
       <div id="petanque-subteams"></div>
     </div>
-    <button onclick="showSection('dashboard')">Back to Dashboard</button>
+    <button onclick="showSection('dashboard')" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
   </div>
 
   <!-- Schedule Games (Admin Only) -->
@@ -78,7 +83,7 @@
     </form>
     <h4>Current Schedule</h4>
     <ul id="schedule-list"></ul>
-    <button onclick="showSection('dashboard')">Back to Dashboard</button>
+    <button onclick="showSection('dashboard')" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
   </div>
 
   <!-- Update Results (Admin Only) -->
@@ -113,7 +118,7 @@
       <input type="number" id="bowling-spartans" placeholder="Spartans score">
       <button onclick="updateScore('Bowling')">Submit</button>
     </div>
-    <button onclick="showSection('dashboard')">Back to Dashboard</button>
+    <button onclick="showSection('dashboard')" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
   </div>
 
   <script src="script.js"></script>

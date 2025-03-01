@@ -34,13 +34,16 @@ function loadData() {
 }
 loadData();
 
-// Show Section
+// Show Section with Transition
 function showSection(sectionId) {
   const sections = document.querySelectorAll(".section");
   sections.forEach(section => {
+    section.classList.remove("active");
     section.style.display = "none";
   });
-  document.getElementById(sectionId).style.display = "block";
+  const targetSection = document.getElementById(sectionId);
+  targetSection.style.display = "block";
+  setTimeout(() => targetSection.classList.add("active"), 10); // Trigger fade-in
   if (sectionId === "schedule") generateSchedule(); // Refresh schedule on display
 }
 
