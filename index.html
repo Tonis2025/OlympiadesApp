@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Olympiades Scoreboard - Admin</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Olympiades: Paname vs. Spartans</h1>
+  <div id="teams">
+    <h2>Paname: <span id="paname-score">0</span></h2>
+    <h2>Spartans: <span id="spartans-score">0</span></h2>
+  </div>
+
+  <!-- Player Setup (Admin Only) -->
+  <div id="player-setup" class="admin-only">
+    <h3>Manage Players</h3>
+    <div class="team-section">
+      <h4>Paname</h4>
+      <div class="player-input">
+        <input type="text" id="paname-add-player" placeholder="Add player (e.g., Alice)">
+        <button onclick="addPlayer('Paname')">Add</button>
+      </div>
+      <ul id="paname-player-list" class="player-list"></ul>
+    </div>
+    <div class="team-section">
+      <h4>Spartans</h4>
+      <div class="player-input">
+        <input type="text" id="spartans-add-player" placeholder="Add player (e.g., Max)">
+        <button onclick="addPlayer('Spartans')">Add</button>
+      </div>
+      <ul id="spartans-player-list" class="player-list"></ul>
+    </div>
+  </div>
+
+  <!-- Schedule Form (Admin Only) -->
+  <div id="schedule-form" class="admin-only">
+    <h3>Set Schedule</h3>
+    <form onsubmit="saveSchedule(event)">
+      <label>Padel: <input type="text" id="schedule-padel" placeholder="e.g., Monday 10 AM"></label><br>
+      <label>Football: <input type="text" id="schedule-football" placeholder="e.g., Tuesday 3 PM"></label><br>
+      <label>Quizz: <input type="text" id="schedule-quizz" placeholder="e.g., Wednesday 2 PM"></label><br>
+      <label>Volleyball: <input type="text" id="schedule-volleyball" placeholder="e.g., Thursday 4 PM"></label><br>
+      <label>Darts: <input type="text" id="schedule-darts" placeholder="e.g., Friday 5 PM"></label><br>
+      <label>Pétanque: <input type="text" id="schedule-petanque" placeholder="e.g., Saturday 1 PM"></label><br>
+      <label>Bowling: <input type="text" id="schedule-bowling" placeholder="e.g., Sunday 6 PM"></label><br>
+      <button type="submit">Save Schedule</button>
+    </form>
+  </div>
+
+  <!-- Schedule Display -->
+  <div id="schedule">
+    <h3>Weekly Schedule</h3>
+    <ul id="schedule-list"></ul>
+    <button onclick="generateSchedule()" class="admin-only">Refresh Schedule</button>
+  </div>
+
+  <!-- Games Section -->
+  <div id="games">
+    <h3>Padel (Bracket)</h3>
+    <button onclick="setupSubTeams('Padel')" class="admin-only">Setup Sub-Teams</button>
+    <div id="padel-subteams"></div>
+
+    <h3>Football</h3>
+    <button onclick="setupSubTeams('Football')" class="admin-only">Setup Sub-Teams</button>
+    <div id="football-subteams"></div>
+    <input type="number" id="football-paname" placeholder="Paname score" class="admin-only">
+    <input type="number" id="football-spartans" placeholder="Spartans score" class="admin-only">
+    <button onclick="updateScore('Football')" class="admin-only">Submit</button>
+
+    <h3>Quizz</h3>
+    <button onclick="setupSubTeams('Quizz')" class="admin-only">Setup Sub-Teams</button>
+    <div id="quizz-subteams"></div>
+    <input type="number" id="quizz-paname" placeholder="Paname score" class="admin-only">
+    <input type="number" id="quizz-spartans" placeholder="Spartans score" class="admin-only">
+    <button onclick="updateScore('Quizz')" class="admin-only">Submit</button>
+
+    <h3>Volleyball</h3>
+    <button onclick="setupSubTeams('Volleyball')" class="admin-only">Setup Sub-Teams</button>
+    <div id="volleyball-subteams"></div>
+    <input type="number" id="volleyball-paname" placeholder="Paname score" class="admin-only">
+    <input type="number" id="volleyball-spartans" placeholder="Spartans score" class="admin-only">
+    <button onclick="updateScore('Volleyball')" class="admin-only">Submit</button>
+
+    <h3>Darts (Bracket)</h3>
+    <button onclick="setupSubTeams('Darts')" class="admin-only">Setup Sub-Teams</button>
+    <div id="darts-subteams"></div>
+
+    <h3>Pétanque (Bracket)</h3>
+    <button onclick="setupSubTeams('Pétanque')" class="admin-only">Setup Sub-Teams</button>
+    <div id="petanque-subteams"></div>
+
+    <h3>Bowling</h3>
+    <button onclick="setupSubTeams('Bowling')" class="admin-only">Setup Sub-Teams</button>
+    <div id="bowling-subteams"></div>
+    <input type="number" id="bowling-paname" placeholder="Paname score" class="admin-only">
+    <input type="number" id="bowling-spartans" placeholder="Spartans score" class="admin-only">
+    <button onclick="updateScore('Bowling')" class="admin-only">Submit</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
