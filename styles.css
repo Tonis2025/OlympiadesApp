@@ -57,7 +57,7 @@ h4 {
 }
 
 /* Inputs */
-input[type="text"], input[type="number"], textarea {
+input[type="text"], input[type="number"] {
   padding: 8px;
   margin: 5px;
   border: 1px solid #ddd;
@@ -68,13 +68,19 @@ input[type="text"], input[type="number"], textarea {
   box-sizing: border-box;
   transition: border-color 0.3s;
 }
-textarea {
-  height: 100px;
-  resize: vertical;
-}
-input:focus, textarea:focus {
+input:focus {
   border-color: #3498db;
   outline: none;
+}
+
+select {
+  padding: 8px;
+  margin: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1em;
+  width: 100%;
+  max-width: 250px;
 }
 
 /* Buttons */
@@ -138,6 +144,12 @@ div[id$="-subteams"] {
   font-size: 0.9em;
   color: #444;
 }
+.pairing-form {
+  margin: 10px 0;
+}
+.pairing-form select, .pairing-form button {
+  margin: 5px;
+}
 
 /* Player Management */
 .team-section {
@@ -186,7 +198,7 @@ div[id$="-subteams"] {
   h4 {
     font-size: 1em;
   }
-  input[type="text"], input[type="number"], textarea {
+  input[type="text"], input[type="number"], select {
     width: 100%;
     max-width: none;
     font-size: 0.9em;
@@ -209,6 +221,11 @@ div[id$="-subteams"] {
     gap: 5px;
   }
   .player-list li {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .pairing-form {
+    display: flex;
     flex-direction: column;
     gap: 5px;
   }

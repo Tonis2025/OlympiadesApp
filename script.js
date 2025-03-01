@@ -3,6 +3,7 @@ let spartansTotal = 0;
 
 let teams = { Paname: [], Spartans: [] };
 let schedule = {};
+let subTeams = { Paname: {}, Spartans: {} }; // Store sub-teams per game
 const gamesList = ["Padel", "Football", "Quizz", "Volleyball", "Darts", "Pétanque", "Bowling"];
 const bracketGames = ["Padel", "Darts", "Pétanque"];
 
@@ -18,6 +19,7 @@ function loadData() {
   const savedTeams = localStorage.getItem("teams");
   const savedSchedule = localStorage.getItem("schedule");
   const savedScores = localStorage.getItem("scores");
+  const savedSubTeams = localStorage.getItem("subTeams");
   if (savedTeams) teams = JSON.parse(savedTeams);
   if (savedSchedule) schedule = JSON.parse(savedSchedule);
   if (savedScores) {
@@ -25,6 +27,7 @@ function loadData() {
     panameTotal = scores.panameTotal || 0;
     spartansTotal = scores.spartansTotal || 0;
   }
+  if (savedSubTeams) subTeams = JSON.parse(savedSubTeams);
   updateDisplay();
 }
 loadData();
@@ -42,25 +45,17 @@ function addPlayer(team) {
   }
 }
 
-// Bulk Add Players (Admin Only)
-function bulkAddPlayers(team) {
-  if (!isAdmin) return;
-  const textarea = document.getElementById(`${team.toLowerCase()}-bulk-add`);
-  const names = textarea.value.split("\n").map(name => name.trim()).filter(name => name && !teams[team].includes(name));
-  if (names.length) {
-    teams[team].push(...names);
-    localStorage.setItem("teams", JSON.stringify(teams));
-    updateDisplay();
-    textarea.value = "";
-  }
-}
-
 // Remove Player (Admin Only)
 function removePlayer(team, player) {
   if (!isAdmin) return;
   if (confirm(`Remove ${player} from ${team}?`)) {
     teams[team] = teams[team].filter(p => p !== player);
+    // Remove from sub-teams if paired
+    for (const game in subTeams[team]) {
+      subTeams[team][game] = subTeams[team][game].filter(pair => !pair.includes(player));
+    }
     localStorage.setItem("teams", JSON.stringify(teams));
+    localStorage.setItem("subTeams", JSON.stringify(subTeams));
     updateDisplay();
   }
 }
@@ -101,35 +96,66 @@ function setupSubTeams(game) {
     return;
   }
 
-  const shuffle = (array) => array.sort(() => Math.random() - 0.5);
   const subTeamsDiv = document.getElementById(`${game.toLowerCase()}-subteams`);
   subTeamsDiv.innerHTML = `<h4>${game} Sub-Teams</h4>`;
 
-  const shuffledPaname = shuffle([...teams.Paname]);
-  const shuffledSpartans = shuffle([...teams.Spartans]);
-
   if (bracketGames.includes(game)) {
-    const panamePairs = [];
-    const spartansPairs = [];
-    for (let i = 0; i < shuffledPaname.length; i += 2) {
-      if (i + 1 < shuffledPaname.length) {
-        panamePairs.push([shuffledPaname[i], shuffledPaname[i + 1]]);
-      }
-    }
-    for (let i = 0; i < shuffledSpartans.length; i += 2) {
-      if (i + 1 < shuffledSpartans.length) {
-        spartansPairs.push([shuffledSpartans[i], shuffledSpartans[i + 1]]);
-      }
-    }
+    // Initialize sub-teams for this game if not already
+    if (!subTeams.Paname[game]) subTeams.Paname[game] = [];
+    if (!subTeams.Spartans[game]) subTeams.Spartans[game] = [];
+
+    // Get unpaired players
+    const panameUnpaired = teams.Paname.filter(p => !subTeams.Paname[game].some(pair => pair.includes(p)));
+    const spartansUnpaired = teams.Spartans.filter(p => !subTeams.Spartans[game].some(pair => pair.includes(p)));
+
+    // Pairing form
     subTeamsDiv.innerHTML += `
-      <p>Paname Pairs: ${panamePairs.map(pair => pair.join(" & ")).join(", ")}</p>
-      <p>Spartans Pairs: ${spartansPairs.map(pair => pair.join(" & ")).join(", ")}</p>
+      <div class="pairing-form">
+        <h5>Paname Pairing</h5>
+        <select id="paname-player1-${game}">
+          <option value="">Select Player 1</option>
+          ${panameUnpaired.map(p => `<option value="${p}">${p}</option>`).join('')}
+        </select>
+        <select id="paname-player2-${game}">
+          <option value="">Select Player 2</option>
+          ${panameUnpaired.map(p => `<option value="${p}">${p}</option>`).join('')}
+        </select>
+        <button onclick="addPair('Paname', '${game}')">Add Pair</button>
+        <p>Current Pairs: ${subTeams.Paname[game].map(pair => pair.join(" & ")).join(", ") || "None"}</p>
+      </div>
+      <div class="pairing-form">
+        <h5>Spartans Pairing</h5>
+        <select id="spartans-player1-${game}">
+          <option value="">Select Player 1</option>
+          ${spartansUnpaired.map(p => `<option value="${p}">${p}</option>`).join('')}
+        </select>
+        <select id="spartans-player2-${game}">
+          <option value="">Select Player 2</option>
+          ${spartansUnpaired.map(p => `<option value="${p}">${p}</option>`).join('')}
+        </select>
+        <button onclick="addPair('Spartans', '${game}')">Add Pair</button>
+        <p>Current Pairs: ${subTeams.Spartans[game].map(pair => pair.join(" & ")).join(", ") || "None"}</p>
+      </div>
     `;
   } else {
+    // Non-bracket games: full team
     subTeamsDiv.innerHTML += `
-      <p>Paname Team: ${shuffledPaname.join(", ")}</p>
-      <p>Spartans Team: ${shuffledSpartans.join(", ")}</p>
+      <p>Paname Team: ${teams.Paname.join(", ")}</p>
+      <p>Spartans Team: ${teams.Spartans.join(", ")}</p>
     `;
+  }
+}
+
+// Add Pair (Admin Only)
+function addPair(team, game) {
+  const player1 = document.getElementById(`${team.toLowerCase()}-player1-${game}`).value;
+  const player2 = document.getElementById(`${team.toLowerCase()}-player2-${game}`).value;
+  if (player1 && player2 && player1 !== player2) {
+    subTeams[team][game].push([player1, player2]);
+    localStorage.setItem("subTeams", JSON.stringify(subTeams));
+    setupSubTeams(game); // Refresh UI
+  } else {
+    alert("Please select two different players!");
   }
 }
 
