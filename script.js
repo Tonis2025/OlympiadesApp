@@ -42,12 +42,27 @@ function addPlayer(team) {
   }
 }
 
+// Bulk Add Players (Admin Only)
+function bulkAddPlayers(team) {
+  if (!isAdmin) return;
+  const textarea = document.getElementById(`${team.toLowerCase()}-bulk-add`);
+  const names = textarea.value.split("\n").map(name => name.trim()).filter(name => name && !teams[team].includes(name));
+  if (names.length) {
+    teams[team].push(...names);
+    localStorage.setItem("teams", JSON.stringify(teams));
+    updateDisplay();
+    textarea.value = "";
+  }
+}
+
 // Remove Player (Admin Only)
 function removePlayer(team, player) {
   if (!isAdmin) return;
-  teams[team] = teams[team].filter(p => p !== player);
-  localStorage.setItem("teams", JSON.stringify(teams));
-  updateDisplay();
+  if (confirm(`Remove ${player} from ${team}?`)) {
+    teams[team] = teams[team].filter(p => p !== player);
+    localStorage.setItem("teams", JSON.stringify(teams));
+    updateDisplay();
+  }
 }
 
 // Save Schedule (Admin Only)
@@ -133,4 +148,30 @@ function updateScore(game) {
 
   localStorage.setItem("scores", JSON.stringify({ panameTotal, spartansTotal }));
   updateDisplay();
-  document
+  document.getElementById(`${game.toLowerCase()}-paname`).value = "";
+  document.getElementById(`${game.toLowerCase()}-spartans`).value = "";
+}
+
+// Update Display (For All Users)
+function updateDisplay() {
+  document.getElementById("paname-score").textContent = panameTotal;
+  document.getElementById("spartans-score").textContent = spartansTotal;
+
+  const panameList = document.getElementById("paname-player-list");
+  const spartansList = document.getElementById("spartans-player-list");
+  panameList.innerHTML = "";
+  spartansList.innerHTML = "";
+
+  teams.Paname.forEach(player => {
+    const li = document.createElement("li");
+    li.innerHTML = `${player} <button class="remove-btn" onclick="removePlayer('Paname', '${player}')">Remove</button>`;
+    panameList.appendChild(li);
+  });
+  teams.Spartans.forEach(player => {
+    const li = document.createElement("li");
+    li.innerHTML = `${player} <button class="remove-btn" onclick="removePlayer('Spartans', '${player}')">Remove</button>`;
+    spartansList.appendChild(li);
+  });
+
+  generateSchedule();
+}

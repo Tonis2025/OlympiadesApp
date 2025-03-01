@@ -57,7 +57,7 @@ h4 {
 }
 
 /* Inputs */
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], textarea {
   padding: 8px;
   margin: 5px;
   border: 1px solid #ddd;
@@ -68,7 +68,11 @@ input[type="text"], input[type="number"] {
   box-sizing: border-box;
   transition: border-color 0.3s;
 }
-input:focus {
+textarea {
+  height: 100px;
+  resize: vertical;
+}
+input:focus, textarea:focus {
   border-color: #3498db;
   outline: none;
 }
@@ -158,7 +162,7 @@ div[id$="-subteams"] {
   font-size: 0.9em;
 }
 
-/* Admin-Only Elements (Hidden by Default) */
+/* Admin-Only Elements */
 .admin-only {
   display: none;
 }
@@ -182,7 +186,7 @@ div[id$="-subteams"] {
   h4 {
     font-size: 1em;
   }
-  input[type="text"], input[type="number"] {
+  input[type="text"], input[type="number"], textarea {
     width: 100%;
     max-width: none;
     font-size: 0.9em;
