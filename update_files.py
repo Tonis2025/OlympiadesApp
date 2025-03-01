@@ -1,4 +1,156 @@
-function setupSubTeams(game) {
+import os
+import json
+
+# Directory where your project files live
+BASE_DIR = os.path.expanduser("~/Desktop/OlympiadesApp")
+
+# File paths
+FILES = {
+    "index": os.path.join(BASE_DIR, "index.html"),
+    "styles": os.path.join(BASE_DIR, "styles.css"),
+    "script": os.path.join(BASE_DIR, "script.js")
+}
+
+def update_file(file_key, new_content):
+    """Update the specified file with new content."""
+    with open(FILES[file_key], "w") as f:
+        f.write(new_content)
+    print(f"Updated {FILES[file_key]}")
+
+def apply_patch(patch):
+    """Apply the patch to the specified files."""
+    for file_key, content in patch.items():
+        if file_key in FILES and content:
+            update_file(file_key, content)
+        else:
+            print(f"No update needed for {file_key}")
+
+if __name__ == "__main__":
+    # Patch from the last bracket enhancement
+    patch = {
+        "index": None,
+        "styles": """/* ... (unchanged styles above) ... */
+
+/* Sub-Teams */
+div[id$="-subteams"] {
+  margin: 10px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  font-size: 0.9em;
+  color: #444;
+}
+.pairing-form {
+  margin: 15px 0;
+}
+.pairing-form select, .pairing-form button {
+  margin: 5px;
+}
+.pair-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.pair-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  width: 150px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Bracket Container */
+.bracket-container {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  overflow-x: auto;
+}
+.bracket-setup {
+  margin-bottom: 20px;
+}
+.bracket-match-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.bracket-match-form select {
+  width: 150px;
+}
+.bracket {
+  display: flex;
+  justify-content: space-between;
+  min-width: 600px;
+  position: relative;
+}
+.bracket-round {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex: 1;
+  padding: 10px;
+}
+.bracket-match {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 20px 0;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+.bracket-match p {
+  margin: 5px 0;
+  font-size: 0.9em;
+}
+.bracket-match select {
+  width: 100%;
+  margin-top: 5px;
+}
+.bracket-match::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -20px;
+  width: 20px;
+  height: 1px;
+  background: #999;
+}
+.bracket-match:nth-child(even)::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: 0;
+  width: 1px;
+  height: 50%;
+  background: #999;
+}
+.bracket-match:nth-child(odd)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 1px;
+  height: 50%;
+  background: #999;
+}
+.bracket-round:last-child .bracket-match::after,
+.bracket-round:last-child .bracket-match::before {
+  display: none;
+}
+
+/* ... (unchanged styles below) ... */""",
+        "script": """function setupSubTeams(game) {
   if (!isAdmin) return;
   if (teams.Paname.length < 2 || teams.Spartans.length < 2) {
     alert("Please add at least 2 players per team first!");
@@ -128,4 +280,10 @@ function saveBracket(game, matchCount) {
     bracketDiv.innerHTML = `<div class="bracket" id="${game}-bracket-visual"></div>`;
     updateBracket(game);
   }
-}
+}"""
+    }
+    try:
+        apply_patch(patch)
+        print("Patch applied successfully. Run 'git status' to check changes.")
+    except Exception as e:
+        print(f"Error applying patch: {e}")
