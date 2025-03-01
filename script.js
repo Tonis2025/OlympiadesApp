@@ -1,9 +1,22 @@
+// Initialize Firebase (replace with your config from Firebase Console)
+const firebaseConfig = {
+  apiKey: "AIzaSyAMpVUbMj-drEejxTIdziKBFeTUs_5Mbzo",
+  authDomain: "olympiades-2025.firebaseapp.com",
+  databaseURL: "https://olympiades-2025-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "olympiades-2025",
+  storageBucket: "olympiades-2025.firebasestorage.app",
+  messagingSenderId: "516570819182",
+  appId: "1:516570819182:web:5c469efe13b71a6e64947f"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 let panameTotal = 0;
 let spartansTotal = 0;
 
 let teams = { Paname: [], Spartans: [] };
 let schedule = {};
-let subTeams = { Paname: {}, Spartans: {} }; // Store sub-teams per game
+let subTeams = { Paname: {}, Spartans: {} };
 const gamesList = ["Padel", "Football", "Quizz", "Volleyball", "Darts", "Pétanque", "Bowling"];
 const bracketGames = ["Padel", "Darts", "Pétanque"];
 
@@ -13,24 +26,28 @@ const isAdmin = urlParams.get("admin") === "true";
 if (isAdmin) {
   document.body.classList.add("admin-mode");
 } else {
-  showSection("dashboard"); // Default to dashboard for non-admins
+  showSection("dashboard");
 }
 
-// Load saved data from localStorage
+// Load data from Firebase
 function loadData() {
-  const savedTeams = localStorage.getItem("teams");
-  const savedSchedule = localStorage.getItem("schedule");
-  const savedScores = localStorage.getItem("scores");
-  const savedSubTeams = localStorage.getItem("subTeams");
-  if (savedTeams) teams = JSON.parse(savedTeams);
-  if (savedSchedule) schedule = JSON.parse(savedSchedule);
-  if (savedScores) {
-    const scores = JSON.parse(savedScores);
-    panameTotal = scores.panameTotal || 0;
-    spartansTotal = scores.spartansTotal || 0;
-  }
-  if (savedSubTeams) subTeams = JSON.parse(savedSubTeams);
-  updateDisplay();
+  db.ref("teams").once("value", snapshot => {
+    teams = snapshot.val() || { Paname: [], Spartans: [] };
+    updateDisplay();
+  });
+  db.ref("schedule").once("value", snapshot => {
+    schedule = snapshot.val() || {};
+    if (document.getElementById("schedule").style.display === "block") generateSchedule();
+  });
+  db.ref("scores").once("value", snapshot => {
+    const scores = snapshot.val() || { panameTotal: 0, spartansTotal: 0 };
+    panameTotal = scores.panameTotal;
+    spartansTotal = scores.spartansTotal;
+    updateDisplay();
+  });
+  db.ref("subTeams").once("value", snapshot => {
+    subTeams = snapshot.val() || { Paname: {}, Spartans: {} };
+  });
 }
 loadData();
 
@@ -43,8 +60,8 @@ function showSection(sectionId) {
   });
   const targetSection = document.getElementById(sectionId);
   targetSection.style.display = "block";
-  setTimeout(() => targetSection.classList.add("active"), 10); // Trigger fade-in
-  if (sectionId === "schedule") generateSchedule(); // Refresh schedule on display
+  setTimeout(() => targetSection.classList.add("active"), 10);
+  if (sectionId === "schedule") generateSchedule();
 }
 
 // Add Player (Admin Only)
@@ -54,9 +71,10 @@ function addPlayer(team) {
   const playerName = input.value.trim();
   if (playerName && !teams[team].includes(playerName)) {
     teams[team].push(playerName);
-    localStorage.setItem("teams", JSON.stringify(teams));
-    updateDisplay();
-    input.value = "";
+    db.ref("teams").set(teams).then(() => {
+      updateDisplay();
+      input.value = "";
+    });
   }
 }
 
@@ -65,13 +83,13 @@ function removePlayer(team, player) {
   if (!isAdmin) return;
   if (confirm(`Remove ${player} from ${team}?`)) {
     teams[team] = teams[team].filter(p => p !== player);
-    // Remove from sub-teams if paired
     for (const game in subTeams[team]) {
       subTeams[team][game] = subTeams[team][game].filter(pair => !pair.includes(player));
     }
-    localStorage.setItem("teams", JSON.stringify(teams));
-    localStorage.setItem("subTeams", JSON.stringify(subTeams));
-    updateDisplay();
+    Promise.all([
+      db.ref("teams").set(teams),
+      db.ref("subTeams").set(subTeams)
+    ]).then(() => updateDisplay());
   }
 }
 
@@ -88,8 +106,7 @@ function saveSchedule(event) {
     "Pétanque": document.getElementById("schedule-petanque").value || "TBD",
     "Bowling": document.getElementById("schedule-bowling").value || "TBD"
   };
-  localStorage.setItem("schedule", JSON.stringify(schedule));
-  generateSchedule();
+  db.ref("schedule").set(schedule).then(() => generateSchedule());
 }
 
 // Show Schedule
@@ -115,15 +132,12 @@ function setupSubTeams(game) {
   subTeamsDiv.innerHTML = `<h4>${game} Sub-Teams</h4>`;
 
   if (bracketGames.includes(game)) {
-    // Initialize sub-teams for this game if not already
     if (!subTeams.Paname[game]) subTeams.Paname[game] = [];
     if (!subTeams.Spartans[game]) subTeams.Spartans[game] = [];
 
-    // Get unpaired players
     const panameUnpaired = teams.Paname.filter(p => !subTeams.Paname[game].some(pair => pair.includes(p)));
     const spartansUnpaired = teams.Spartans.filter(p => !subTeams.Spartans[game].some(pair => pair.includes(p)));
 
-    // Pairing form
     subTeamsDiv.innerHTML += `
       <div class="pairing-form">
         <h5>Paname Pairing</h5>
@@ -153,7 +167,6 @@ function setupSubTeams(game) {
       </div>
     `;
   } else {
-    // Non-bracket games: full team
     subTeamsDiv.innerHTML += `
       <p>Paname Team: ${teams.Paname.join(", ")}</p>
       <p>Spartans Team: ${teams.Spartans.join(", ")}</p>
@@ -167,8 +180,7 @@ function addPair(team, game) {
   const player2 = document.getElementById(`${team.toLowerCase()}-player2-${game}`).value;
   if (player1 && player2 && player1 !== player2) {
     subTeams[team][game].push([player1, player2]);
-    localStorage.setItem("subTeams", JSON.stringify(subTeams));
-    setupSubTeams(game); // Refresh UI
+    db.ref("subTeams").set(subTeams).then(() => setupSubTeams(game));
   } else {
     alert("Please select two different players!");
   }
@@ -187,10 +199,11 @@ function updateScore(game) {
     spartansTotal += 1;
   }
 
-  localStorage.setItem("scores", JSON.stringify({ panameTotal, spartansTotal }));
-  updateDisplay();
-  document.getElementById(`${game.toLowerCase()}-paname`).value = "";
-  document.getElementById(`${game.toLowerCase()}-spartans`).value = "";
+  db.ref("scores").set({ panameTotal, spartansTotal }).then(() => {
+    updateDisplay();
+    document.getElementById(`${game.toLowerCase()}-paname`).value = "";
+    document.getElementById(`${game.toLowerCase()}-spartans`).value = "";
+  });
 }
 
 // Update Display (For All Users)
