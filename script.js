@@ -1,4 +1,4 @@
-// Initialize Firebase (replace with your config from Firebase Console)
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAMpVUbMj-drEejxTIdziKBFeTUs_5Mbzo",
   authDomain: "olympiades-2025.firebaseapp.com",
@@ -8,8 +8,18 @@ const firebaseConfig = {
   messagingSenderId: "516570819182",
   appId: "1:516570819182:web:5c469efe13b71a6e64947f"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+
+// Initialize Firebase after SDK loads
+let db;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  console.log("Firebase initialized successfully");
+} catch (error) {
+  console.error("Firebase initialization failed:", error.message);
+  console.error("Error details:", error);
+  alert("Failed to connect to database. App will run in local mode. Check console for details.");
+}
 
 let panameTotal = 0;
 let spartansTotal = 0;
@@ -31,28 +41,45 @@ if (isAdmin) {
 
 // Load data from Firebase
 function loadData() {
+  console.log("Attempting to load data from Firebase...");
+  if (!db) {
+    console.warn("No Firebase connection, using default data.");
+    updateDisplay();
+    return;
+  }
   db.ref("teams").once("value", snapshot => {
+    console.log("Teams data loaded:", snapshot.val());
     teams = snapshot.val() || { Paname: [], Spartans: [] };
     updateDisplay();
+  }).catch(error => {
+    console.error("Error loading teams:", error.message);
+    updateDisplay(); // Fallback to local
   });
+
   db.ref("schedule").once("value", snapshot => {
+    console.log("Schedule data loaded:", snapshot.val());
     schedule = snapshot.val() || {};
     if (document.getElementById("schedule").style.display === "block") generateSchedule();
-  });
+  }).catch(error => console.error("Error loading schedule:", error.message));
+
   db.ref("scores").once("value", snapshot => {
+    console.log("Scores data loaded:", snapshot.val());
     const scores = snapshot.val() || { panameTotal: 0, spartansTotal: 0 };
     panameTotal = scores.panameTotal;
     spartansTotal = scores.spartansTotal;
     updateDisplay();
-  });
+  }).catch(error => console.error("Error loading scores:", error.message));
+
   db.ref("subTeams").once("value", snapshot => {
+    console.log("SubTeams data loaded:", snapshot.val());
     subTeams = snapshot.val() || { Paname: {}, Spartans: {} };
-  });
+  }).catch(error => console.error("Error loading subTeams:", error.message));
 }
 loadData();
 
 // Show Section with Transition
 function showSection(sectionId) {
+  console.log("Showing section:", sectionId);
   const sections = document.querySelectorAll(".section");
   sections.forEach(section => {
     section.classList.remove("active");
@@ -71,10 +98,20 @@ function addPlayer(team) {
   const playerName = input.value.trim();
   if (playerName && !teams[team].includes(playerName)) {
     teams[team].push(playerName);
-    db.ref("teams").set(teams).then(() => {
+    if (db) {
+      db.ref("teams").set(teams).then(() => {
+        console.log(`Added ${playerName} to ${team}`);
+        updateDisplay();
+        input.value = "";
+      }).catch(error => {
+        console.error("Error saving teams:", error.message);
+        updateDisplay();
+        input.value = "";
+      });
+    } else {
       updateDisplay();
       input.value = "";
-    });
+    }
   }
 }
 
@@ -86,10 +123,20 @@ function removePlayer(team, player) {
     for (const game in subTeams[team]) {
       subTeams[team][game] = subTeams[team][game].filter(pair => !pair.includes(player));
     }
-    Promise.all([
-      db.ref("teams").set(teams),
-      db.ref("subTeams").set(subTeams)
-    ]).then(() => updateDisplay());
+    if (db) {
+      Promise.all([
+        db.ref("teams").set(teams),
+        db.ref("subTeams").set(subTeams)
+      ]).then(() => {
+        console.log(`Removed ${player} from ${team}`);
+        updateDisplay();
+      }).catch(error => {
+        console.error("Error saving data:", error.message);
+        updateDisplay();
+      });
+    } else {
+      updateDisplay();
+    }
   }
 }
 
@@ -106,7 +153,14 @@ function saveSchedule(event) {
     "Pétanque": document.getElementById("schedule-petanque").value || "TBD",
     "Bowling": document.getElementById("schedule-bowling").value || "TBD"
   };
-  db.ref("schedule").set(schedule).then(() => generateSchedule());
+  if (db) {
+    db.ref("schedule").set(schedule).then(() => {
+      console.log("Schedule saved:", schedule);
+      generateSchedule();
+    }).catch(error => console.error("Error saving schedule:", error.message));
+  } else {
+    generateSchedule();
+  }
 }
 
 // Show Schedule
@@ -180,7 +234,14 @@ function addPair(team, game) {
   const player2 = document.getElementById(`${team.toLowerCase()}-player2-${game}`).value;
   if (player1 && player2 && player1 !== player2) {
     subTeams[team][game].push([player1, player2]);
-    db.ref("subTeams").set(subTeams).then(() => setupSubTeams(game));
+    if (db) {
+      db.ref("subTeams").set(subTeams).then(() => {
+        console.log(`Added pair ${player1} & ${player2} to ${team} for ${game}`);
+        setupSubTeams(game);
+      }).catch(error => console.error("Error saving subTeams:", error.message));
+    } else {
+      setupSubTeams(game);
+    }
   } else {
     alert("Please select two different players!");
   }
@@ -199,11 +260,18 @@ function updateScore(game) {
     spartansTotal += 1;
   }
 
-  db.ref("scores").set({ panameTotal, spartansTotal }).then(() => {
+  if (db) {
+    db.ref("scores").set({ panameTotal, spartansTotal }).then(() => {
+      console.log("Scores updated:", { panameTotal, spartansTotal });
+      updateDisplay();
+      document.getElementById(`${game.toLowerCase()}-paname`).value = "";
+      document.getElementById(`${game.toLowerCase()}-spartans`).value = "";
+    }).catch(error => console.error("Error saving scores:", error.message));
+  } else {
     updateDisplay();
     document.getElementById(`${game.toLowerCase()}-paname`).value = "";
     document.getElementById(`${game.toLowerCase()}-spartans`).value = "";
-  });
+  }
 }
 
 // Update Display (For All Users)
