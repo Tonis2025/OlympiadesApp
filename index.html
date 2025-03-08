@@ -3,131 +3,125 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Olympiades Scoreboard - Admin</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Firebase Compat SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <title>Olympiades 2025</title>
+  <link rel="stylesheet" href="styles.css?v=1">
+  <script src="https://kit.fontawesome.com/784b266f8d.js" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
   <header>
-    <h1>Olympiades: Paname vs. Spartans</h1>
+    <h1>Olympiades 2025</h1>
     <div id="teams">
       <h2>Paname: <span id="paname-score">0</span></h2>
       <h2>Spartans: <span id="spartans-score">0</span></h2>
     </div>
   </header>
 
-  <!-- Dashboard (Admin Only) -->
-  <div id="dashboard" class="admin-only section">
-    <h3>Admin Dashboard</h3>
+  <div id="dashboard" class="section">
+    <h3>Dashboard</h3>
     <div class="dashboard-grid">
-      <button onclick="showSection('team-setup')"><i class="fas fa-users"></i> Set-up Team</button>
-      <button onclick="showSection('bracket-org')"><i class="fas fa-trophy"></i> Organise Brackets</button>
-      <button onclick="showSection('schedule')"><i class="fas fa-calendar-alt"></i> Schedule Games</button>
-      <button onclick="showSection('results')"><i class="fas fa-chart-bar"></i> Update Results</button>
+      <button onclick="showSection('teams')"><i class="fas fa-users"></i>Set-up Team</button>
+      <button onclick="showSection('schedule')"><i class="fas fa-calendar"></i>Schedule</button>
+      <button onclick="showSection('brackets')"><i class="fas fa-trophy"></i>Organise Brackets</button>
+      <button onclick="showSection('scores')"><i class="fas fa-chart-bar"></i>Update Scores</button>
     </div>
   </div>
 
-  <!-- Team Setup (Admin Only) -->
-  <div id="team-setup" class="admin-only section" style="display: none;">
-    <h3>Manage Players</h3>
+  <div id="teams" class="section" style="display: none;">
+    <h3>Manage Teams</h3>
     <div class="team-section">
       <h4>Paname</h4>
-      <div class="player-input">
-        <input type="text" id="paname-add-player" placeholder="Add player (e.g., Alice)">
-        <button onclick="addPlayer('Paname')"><i class="fas fa-plus"></i> Add</button>
+      <div class="player-input admin-only">
+        <input type="text" id="paname-add-player" placeholder="Add player">
+        <button onclick="addPlayer('Paname')">Add</button>
       </div>
       <ul id="paname-player-list" class="player-list"></ul>
     </div>
     <div class="team-section">
       <h4>Spartans</h4>
-      <div class="player-input">
-        <input type="text" id="spartans-add-player" placeholder="Add player (e.g., Max)">
-        <button onclick="addPlayer('Spartans')"><i class="fas fa-plus"></i> Add</button>
+      <div class="player-input admin-only">
+        <input type="text" id="spartans-add-player" placeholder="Add player">
+        <button onclick="addPlayer('Spartans')">Add</button>
       </div>
       <ul id="spartans-player-list" class="player-list"></ul>
     </div>
-    <button onclick="showSection('dashboard')" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+    <button class="back-btn" onclick="showSection('dashboard')">Back to Dashboard</button>
   </div>
 
-  <!-- Bracket Organisation (Admin Only) -->
-  <div id="bracket-org" class="admin-only section" style="display: none;">
-    <h3>Organise Brackets</h3>
-    <div id="bracket-games">
-      <h4>Padel</h4>
-      <button onclick="setupSubTeams('Padel')">Setup Sub-Teams</button>
-      <button onclick="setupBracket('Padel')">Setup Bracket</button>
-      <div id="padel-subteams"></div>
-      <div id="padel-bracket" class="bracket-container"></div>
-
-      <h4>Darts</h4>
-      <button onclick="setupSubTeams('Darts')">Setup Sub-Teams</button>
-      <button onclick="setupBracket('Darts')">Setup Bracket</button>
-      <div id="darts-subteams"></div>
-      <div id="darts-bracket" class="bracket-container"></div>
-
-      <h4>Pétanque</h4>
-      <button onclick="setupSubTeams('Pétanque')">Setup Sub-Teams</button>
-      <button onclick="setupBracket('Pétanque')">Setup Bracket</button>
-      <div id="petanque-subteams"></div>
-      <div id="petanque-bracket" class="bracket-container"></div>
-    </div>
-    <button onclick="showSection('dashboard')" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
-  </div>
-
-  <!-- Schedule Games (Admin Only) -->
-  <div id="schedule" class="admin-only section" style="display: none;">
-    <h3>Schedule Games</h3>
-    <form onsubmit="saveSchedule(event)">
-      <label>Padel: <input type="text" id="schedule-padel" placeholder="e.g., Monday 10 AM"></label><br>
-      <label>Football: <input type="text" id="schedule-football" placeholder="e.g., Tuesday 3 PM"></label><br>
-      <label>Quizz: <input type="text" id="schedule-quizz" placeholder="e.g., Wednesday 2 PM"></label><br>
-      <label>Volleyball: <input type="text" id="schedule-volleyball" placeholder="e.g., Thursday 4 PM"></label><br>
-      <label>Darts: <input type="text" id="schedule-darts" placeholder="e.g., Friday 5 PM"></label><br>
-      <label>Pétanque: <input type="text" id="schedule-petanque" placeholder="e.g., Saturday 1 PM"></label><br>
-      <label>Bowling: <input type="text" id="schedule-bowling" placeholder="e.g., Sunday 6 PM"></label><br>
+  <div id="schedule" class="section" style="display: none;">
+    <h3>Schedule</h3>
+    <form class="admin-only" onsubmit="saveSchedule(event)">
+      <label>Padel: <input type="text" id="schedule-padel"></label>
+      <label>Football: <input type="text" id="schedule-football"></label>
+      <label>Quizz: <input type="text" id="schedule-quizz"></label>
+      <label>Volleyball: <input type="text" id="schedule-volleyball"></label>
+      <label>Darts: <input type="text" id="schedule-darts"></label>
+      <label>Pétanque: <input type="text" id="schedule-petanque"></label>
+      <label>Bowling: <input type="text" id="schedule-bowling"></label>
       <button type="submit">Save Schedule</button>
     </form>
-    <h4>Current Schedule</h4>
     <ul id="schedule-list"></ul>
-    <button onclick="showSection('dashboard')" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+    <button class="back-btn" onclick="showSection('dashboard')">Back to Dashboard</button>
   </div>
 
-  <!-- Update Results (Admin Only) -->
-  <div id="results" class="admin-only section" style="display: none;">
-    <h3>Update Results</h3>
-    <div id="non-bracket-games">
-      <h4>Football</h4>
-      <button onclick="setupSubTeams('Football')">Setup Sub-Teams</button>
-      <div id="football-subteams"></div>
-      <input type="number" id="football-paname" placeholder="Paname score">
-      <input type="number" id="football-spartans" placeholder="Spartans score">
-      <button onclick="updateScore('Football')">Submit</button>
-
-      <h4>Quizz</h4>
-      <button onclick="setupSubTeams('Quizz')">Setup Sub-Teams</button>
-      <div id="quizz-subteams"></div>
-      <input type="number" id="quizz-paname" placeholder="Paname score">
-      <input type="number" id="quizz-spartans" placeholder="Spartans score">
-      <button onclick="updateScore('Quizz')">Submit</button>
-
-      <h4>Volleyball</h4>
-      <button onclick="setupSubTeams('Volleyball')">Setup Sub-Teams</button>
-      <div id="volleyball-subteams"></div>
-      <input type="number" id="volleyball-paname" placeholder="Paname score">
-      <input type="number" id="volleyball-spartans" placeholder="Spartans score">
-      <button onclick="updateScore('Volleyball')">Submit</button>
-
-      <h4>Bowling</h4>
-      <button onclick="setupSubTeams('Bowling')">Setup Sub-Teams</button>
-      <div id="bowling-subteams"></div>
-      <input type="number" id="bowling-paname" placeholder="Paname score">
-      <input type="number" id="bowling-spartans" placeholder="Spartans score">
-      <button onclick="updateScore('Bowling')">Submit</button>
+  <div id="brackets" class="section" style="display: none;">
+    <h3>Organise Brackets</h3>
+    <div class="admin-only">
+      <div>
+        <h4>Padel</h4>
+        <div id="padel-subteams"></div>
+        <button onclick="setupSubTeams('Padel')">Setup Sub-Teams</button>
+        <div id="padel-bracket" class="bracket-container"></div>
+        <button onclick="setupBracket('Padel')">Setup Bracket</button>
+      </div>
+      <div>
+        <h4>Darts</h4>
+        <div id="darts-subteams"></div>
+        <button onclick="setupSubTeams('Darts')">Setup Sub-Teams</button>
+        <div id="darts-bracket" class="bracket-container"></div>
+        <button onclick="setupBracket('Darts')">Setup Bracket</button>
+      </div>
+      <div>
+        <h4>Pétanque</h4>
+        <div id="petanque-subteams"></div>
+        <button onclick="setupSubTeams('Pétanque')">Setup Sub-Teams</button>
+        <div id="petanque-bracket" class="bracket-container"></div>
+        <button onclick="setupBracket('Pétanque')">Setup Bracket</button>
+      </div>
     </div>
-    <button onclick="showSection('dashboard')" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+    <button class="back-btn" onclick="showSection('dashboard')">Back to Dashboard</button>
+  </div>
+
+  <div id="scores" class="section" style="display: none;">
+    <h3>Update Scores</h3>
+    <div class="admin-only">
+      <div>
+        <h4>Football</h4>
+        <input type="number" id="football-paname" placeholder="Paname Score">
+        <input type="number" id="football-spartans" placeholder="Spartans Score">
+        <button onclick="updateScore('Football')">Update</button>
+      </div>
+      <div>
+        <h4>Quizz</h4>
+        <input type="number" id="quizz-paname" placeholder="Paname Score">
+        <input type="number" id="quizz-spartans" placeholder="Spartans Score">
+        <button onclick="updateScore('Quizz')">Update</button>
+      </div>
+      <div>
+        <h4>Volleyball</h4>
+        <input type="number" id="volleyball-paname" placeholder="Paname Score">
+        <input type="number" id="volleyball-spartans" placeholder="Spartans Score">
+        <button onclick="updateScore('Volleyball')">Update</button>
+      </div>
+      <div>
+        <h4>Bowling</h4>
+        <input type="number" id="bowling-paname" placeholder="Paname Score">
+        <input type="number" id="bowling-spartans" placeholder="Spartans Score">
+        <button onclick="updateScore('Bowling')">Update</button>
+      </div>
+    </div>
+    <button class="back-btn" onclick="showSection('dashboard')">Back to Dashboard</button>
   </div>
 
   <script src="script.js"></script>
