@@ -4,125 +4,93 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Olympiades 2025</title>
-  <link rel="stylesheet" href="styles.css?v=1">
-  <script src="https://kit.fontawesome.com/784b266f8d.js" crossorigin="anonymous"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
     <h1>Olympiades 2025</h1>
-    <div id="teams">
-      <h2>Paname: <span id="paname-score">0</span></h2>
-      <h2>Spartans: <span id="spartans-score">0</span></h2>
-    </div>
   </header>
 
   <div id="dashboard" class="section">
-    <h3>Dashboard</h3>
+    <h3>Welcome to Olympiades 2025!</h3>
     <div class="dashboard-grid">
-      <button onclick="showSection('teams')"><i class="fas fa-users"></i>Set-up Team</button>
-      <button onclick="showSection('schedule')"><i class="fas fa-calendar"></i>Schedule</button>
-      <button onclick="showSection('brackets')"><i class="fas fa-trophy"></i>Organise Brackets</button>
-      <button onclick="showSection('scores')"><i class="fas fa-chart-bar"></i>Update Scores</button>
+      <button onclick="showSection('teams')">Set Up Teams</button>
+      <button onclick="showSection('games')">Create Pairs for Games</button>
     </div>
   </div>
 
   <div id="teams" class="section" style="display: none;">
     <h3>Manage Teams</h3>
-    <div class="team-section">
-      <h4>Paname</h4>
-      <div class="player-input admin-only">
-        <input type="text" id="paname-add-player" placeholder="Add player">
-        <button onclick="addPlayer('Paname')">Add</button>
+    <div class="team-container">
+      <div class="team-section">
+        <h4>Paname</h4>
+        <div class="player-input">
+          <input type="text" id="paname-add-player" placeholder="Add player (max 18)">
+          <button onclick="addPlayer('Paname')">Add</button>
+        </div>
+        <ul id="paname-player-list" class="player-list"></ul>
       </div>
-      <ul id="paname-player-list" class="player-list"></ul>
-    </div>
-    <div class="team-section">
-      <h4>Spartans</h4>
-      <div class="player-input admin-only">
-        <input type="text" id="spartans-add-player" placeholder="Add player">
-        <button onclick="addPlayer('Spartans')">Add</button>
-      </div>
-      <ul id="spartans-player-list" class="player-list"></ul>
-    </div>
-    <button class="back-btn" onclick="showSection('dashboard')">Back to Dashboard</button>
-  </div>
 
-  <div id="schedule" class="section" style="display: none;">
-    <h3>Schedule</h3>
-    <form class="admin-only" onsubmit="saveSchedule(event)">
-      <label>Padel: <input type="text" id="schedule-padel"></label>
-      <label>Football: <input type="text" id="schedule-football"></label>
-      <label>Quizz: <input type="text" id="schedule-quizz"></label>
-      <label>Volleyball: <input type="text" id="schedule-volleyball"></label>
-      <label>Darts: <input type="text" id="schedule-darts"></label>
-      <label>Pétanque: <input type="text" id="schedule-petanque"></label>
-      <label>Bowling: <input type="text" id="schedule-bowling"></label>
-      <button type="submit">Save Schedule</button>
-    </form>
-    <ul id="schedule-list"></ul>
-    <button class="back-btn" onclick="showSection('dashboard')">Back to Dashboard</button>
-  </div>
-
-  <div id="brackets" class="section" style="display: none;">
-    <h3>Organise Brackets</h3>
-    <div class="admin-only">
-      <div>
-        <h4>Padel</h4>
-        <div id="padel-subteams"></div>
-        <button onclick="setupSubTeams('Padel')">Setup Sub-Teams</button>
-        <div id="padel-bracket" class="bracket-container"></div>
-        <button onclick="setupBracket('Padel')">Setup Bracket</button>
-      </div>
-      <div>
-        <h4>Darts</h4>
-        <div id="darts-subteams"></div>
-        <button onclick="setupSubTeams('Darts')">Setup Sub-Teams</button>
-        <div id="darts-bracket" class="bracket-container"></div>
-        <button onclick="setupBracket('Darts')">Setup Bracket</button>
-      </div>
-      <div>
-        <h4>Pétanque</h4>
-        <div id="petanque-subteams"></div>
-        <button onclick="setupSubTeams('Pétanque')">Setup Sub-Teams</button>
-        <div id="petanque-bracket" class="bracket-container"></div>
-        <button onclick="setupBracket('Pétanque')">Setup Bracket</button>
+      <div class="team-section">
+        <h4>Spartans</h4>
+        <div class="player-input">
+          <input type="text" id="spartans-add-player" placeholder="Add player (max 18)">
+          <button onclick="addPlayer('Spartans')">Add</button>
+        </div>
+        <ul id="spartans-player-list" class="player-list"></ul>
       </div>
     </div>
     <button class="back-btn" onclick="showSection('dashboard')">Back to Dashboard</button>
   </div>
 
-  <div id="scores" class="section" style="display: none;">
-    <h3>Update Scores</h3>
-    <div class="admin-only">
-      <div>
-        <h4>Football</h4>
-        <input type="number" id="football-paname" placeholder="Paname Score">
-        <input type="number" id="football-spartans" placeholder="Spartans Score">
-        <button onclick="updateScore('Football')">Update</button>
+  <div id="games" class="section" style="display: none;">
+    <h3>Create Pairs for Games</h3>
+    <div class="game-container">
+      <div class="game-section">
+        <h4>Padel Pairs</h4>
+        <button onclick="generateGamePairs('Padel')">Generate Padel Pairs</button>
+        <ul id="padel-pairs-list"></ul>
       </div>
-      <div>
-        <h4>Quizz</h4>
-        <input type="number" id="quizz-paname" placeholder="Paname Score">
-        <input type="number" id="quizz-spartans" placeholder="Spartans Score">
-        <button onclick="updateScore('Quizz')">Update</button>
+
+      <div class="game-section">
+        <h4>Pétanque Pairs</h4>
+        <button onclick="generateGamePairs('Petanque')">Generate Pétanque Pairs</button>
+        <ul id="petanque-pairs-list"></ul>
       </div>
-      <div>
-        <h4>Volleyball</h4>
-        <input type="number" id="volleyball-paname" placeholder="Paname Score">
-        <input type="number" id="volleyball-spartans" placeholder="Spartans Score">
-        <button onclick="updateScore('Volleyball')">Update</button>
-      </div>
-      <div>
-        <h4>Bowling</h4>
-        <input type="number" id="bowling-paname" placeholder="Paname Score">
-        <input type="number" id="bowling-spartans" placeholder="Spartans Score">
-        <button onclick="updateScore('Bowling')">Update</button>
+
+      <div class="game-section">
+        <h4>Darts Pairs</h4>
+        <button onclick="generateGamePairs('Darts')">Generate Darts Pairs</button>
+        <ul id="darts-pairs-list"></ul>
       </div>
     </div>
     <button class="back-btn" onclick="showSection('dashboard')">Back to Dashboard</button>
   </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAMpVUbMj-drEejxTIdziKBFeTUs_5Mbzo",
+      authDomain: "olympiades-2025.firebaseapp.com",
+      databaseURL: "https://olympiades-2025-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "olympiades-2025",
+      storageBucket: "olympiades-2025.firebasestorage.app",
+      messagingSenderId: "516570819182",
+      appId: "1:516570819182:web:5c469efe13b71a6e64947f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    window.firebaseApp = app;
+    window.firebaseDB = database;
+    window.firebaseRef = ref;
+    window.firebasePush = push;
+    window.firebaseOnValue = onValue;
+  </script>
 
   <script src="script.js"></script>
 </body>
