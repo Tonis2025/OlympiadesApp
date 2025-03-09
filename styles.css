@@ -30,56 +30,15 @@ header {
   transition: all 0.3s ease-in-out;
 }
 
-h3 {
-  font-family: 'Poppins', sans-serif;
-  font-size: 1.8em;
-  color: #2c3e50;
-  margin-bottom: 15px;
-}
-
-/* Dashboard Grid */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
-  margin-top: 20px;
-}
-
-button {
-  padding: 12px 20px;
-  border: none;
-  border-radius: 25px;
-  font-size: 1em;
-  font-weight: 700;
-  color: #fff;
-  background: linear-gradient(45deg, #3498db, #2980b9);
-  cursor: pointer;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease-in-out;
-}
-
-button:hover {
-  background: linear-gradient(45deg, #2980b9, #2471a3);
-  transform: scale(1.05);
-}
-
-.back-btn {
-  background: linear-gradient(45deg, #95a5a6, #7f8c8d);
-}
-
-.back-btn:hover {
-  background: linear-gradient(45deg, #7f8c8d, #6c7a89);
-}
-
 /* Team Sections */
-.team-container, .game-container {
+.team-container {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 20px;
 }
 
-.team-section, .game-section {
+.team-section {
   width: 48%;
   background: #f8f9fa;
   padding: 15px;
@@ -88,91 +47,62 @@ button:hover {
   transition: all 0.3s ease-in-out;
 }
 
-.team-section:hover, .game-section:hover {
+.team-section:hover {
   transform: scale(1.02);
 }
 
-/* Input Fields */
-.player-input {
-  margin-bottom: 15px;
-}
-
-.player-input input {
-  padding: 10px;
-  width: 75%;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1em;
-}
-
-.player-input button {
-  padding: 10px 15px;
-  font-size: 1em;
-  margin-left: 10px;
-}
-
 /* Player Lists */
-.player-list, .selectable-player-list, .game-pairs-list {
+.player-list {
   list-style: none;
   padding: 0;
   text-align: left;
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
   border-radius: 10px;
   background: #fff;
   padding: 10px;
 }
 
-.player-list li, .selectable-player-list li, .game-pairs-list li {
+.player-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px;
   background: #f8f9fa;
   border-radius: 5px;
   margin-bottom: 5px;
   font-weight: bold;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.player-list li:hover, .selectable-player-list li:hover {
-  background: #ecf0f1;
+/* Fixed Delete Button - Now Smaller & Less Obtrusive */
+.delete-btn {
+  background: #bdc3c7; /* Light gray */
+  color: #2c3e50; /* Darker gray */
+  border: none;
+  padding: 4px 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9em;
+  margin-left: 10px;
+  transition: all 0.2s ease-in-out;
 }
 
-/* Checkbox Styling */
-.selectable-player-list input[type="checkbox"] {
-  transform: scale(1.2);
+.delete-btn:hover {
+  background: #7f8c8d;
+  color: white;
+  transform: scale(1.1);
 }
 
 /* Mobile Optimization */
 @media (max-width: 768px) {
-  .team-container, .game-container {
+  .team-container {
     flex-direction: column;
     align-items: center;
   }
 
-  .team-section, .game-section {
+  .team-section {
     width: 100%;
     margin-bottom: 15px;
-  }
-
-  .player-input input {
-    width: 65%;
-  }
-}
-
-@media (max-width: 480px) {
-  button {
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  .player-input input {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
-  .player-input button {
-    width: 100%;
   }
 }
