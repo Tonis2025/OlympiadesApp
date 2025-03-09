@@ -4,19 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Olympiades 2025</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
   <header>
-    <h1>Olympiades 2025</h1>
+    <h1><i class="fas fa-trophy"></i> Olympiades 2025</h1>
   </header>
 
   <div id="dashboard" class="section">
     <h3>Welcome to Olympiades 2025!</h3>
     <div class="dashboard-grid">
-      <button onclick="showSection('teams')">Set Up Teams</button>
-      <button onclick="showSection('games')">Create Pairs for Games</button>
+      <button onclick="showSection('teams')"><i class="fas fa-users"></i> Set Up Teams</button>
+      <button onclick="showSection('games')"><i class="fas fa-gamepad"></i> Create Pairs for Games</button>
     </div>
   </div>
 
@@ -27,7 +30,7 @@
         <h4>Paname</h4>
         <div class="player-input">
           <input type="text" id="paname-add-player" placeholder="Add player (max 18)">
-          <button onclick="addPlayer('Paname')">Add</button>
+          <button onclick="addPlayer('Paname')"><i class="fas fa-plus"></i> Add</button>
         </div>
         <ul id="paname-player-list" class="player-list"></ul>
       </div>
@@ -36,61 +39,108 @@
         <h4>Spartans</h4>
         <div class="player-input">
           <input type="text" id="spartans-add-player" placeholder="Add player (max 18)">
-          <button onclick="addPlayer('Spartans')">Add</button>
+          <button onclick="addPlayer('Spartans')"><i class="fas fa-plus"></i> Add</button>
         </div>
         <ul id="spartans-player-list" class="player-list"></ul>
       </div>
     </div>
-    <button class="back-btn" onclick="showSection('dashboard')">Back to Dashboard</button>
+    <button class="back-btn" onclick="showSection('dashboard')"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
   </div>
 
   <div id="games" class="section" style="display: none;">
     <h3>Create Pairs for Games</h3>
+    
+    <div class="game-tabs">
+      <button class="tab-btn active" onclick="switchGameTab('Padel')">Padel</button>
+      <button class="tab-btn" onclick="switchGameTab('Petanque')">Pétanque</button>
+      <button class="tab-btn" onclick="switchGameTab('Darts')">Darts</button>
+    </div>
+    
     <div class="game-container">
-      <div class="game-section">
+      <div id="Padel-tab" class="game-tab-content active">
         <h4>Padel Pairs</h4>
-        <button onclick="generateGamePairs('Padel')">Generate Padel Pairs</button>
-        <ul id="padel-pairs-list"></ul>
+        <div class="pair-creation">
+          <div class="player-selection">
+            <h5>Select Players</h5>
+            <div class="team-players">
+              <div>
+                <h6>Paname Players</h6>
+                <ul id="padel-paname-players" class="selectable-players"></ul>
+              </div>
+              <div>
+                <h6>Spartans Players</h6>
+                <ul id="padel-spartans-players" class="selectable-players"></ul>
+              </div>
+            </div>
+            <div class="selected-players">
+              <p>Selected: <span id="padel-selected-players">None</span></p>
+              <button onclick="createPair('Padel')" class="create-pair-btn"><i class="fas fa-link"></i> Create Pair</button>
+            </div>
+          </div>
+          <div class="pairs-list">
+            <h5>Created Pairs</h5>
+            <ul id="padel-pairs-list" class="created-pairs"></ul>
+          </div>
+        </div>
       </div>
 
-      <div class="game-section">
+      <div id="Petanque-tab" class="game-tab-content">
         <h4>Pétanque Pairs</h4>
-        <button onclick="generateGamePairs('Petanque')">Generate Pétanque Pairs</button>
-        <ul id="petanque-pairs-list"></ul>
+        <div class="pair-creation">
+          <div class="player-selection">
+            <h5>Select Players</h5>
+            <div class="team-players">
+              <div>
+                <h6>Paname Players</h6>
+                <ul id="petanque-paname-players" class="selectable-players"></ul>
+              </div>
+              <div>
+                <h6>Spartans Players</h6>
+                <ul id="petanque-spartans-players" class="selectable-players"></ul>
+              </div>
+            </div>
+            <div class="selected-players">
+              <p>Selected: <span id="petanque-selected-players">None</span></p>
+              <button onclick="createPair('Petanque')" class="create-pair-btn"><i class="fas fa-link"></i> Create Pair</button>
+            </div>
+          </div>
+          <div class="pairs-list">
+            <h5>Created Pairs</h5>
+            <ul id="petanque-pairs-list" class="created-pairs"></ul>
+          </div>
+        </div>
       </div>
 
-      <div class="game-section">
+      <div id="Darts-tab" class="game-tab-content">
         <h4>Darts Pairs</h4>
-        <button onclick="generateGamePairs('Darts')">Generate Darts Pairs</button>
-        <ul id="darts-pairs-list"></ul>
+        <div class="pair-creation">
+          <div class="player-selection">
+            <h5>Select Players</h5>
+            <div class="team-players">
+              <div>
+                <h6>Paname Players</h6>
+                <ul id="darts-paname-players" class="selectable-players"></ul>
+              </div>
+              <div>
+                <h6>Spartans Players</h6>
+                <ul id="darts-spartans-players" class="selectable-players"></ul>
+              </div>
+            </div>
+            <div class="selected-players">
+              <p>Selected: <span id="darts-selected-players">None</span></p>
+              <button onclick="createPair('Darts')" class="create-pair-btn"><i class="fas fa-link"></i> Create Pair</button>
+            </div>
+          </div>
+          <div class="pairs-list">
+            <h5>Created Pairs</h5>
+            <ul id="darts-pairs-list" class="created-pairs"></ul>
+          </div>
+        </div>
       </div>
     </div>
-    <button class="back-btn" onclick="showSection('dashboard')">Back to Dashboard</button>
+    
+    <button class="back-btn" onclick="showSection('dashboard')"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
   </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAMpVUbMj-drEejxTIdziKBFeTUs_5Mbzo",
-      authDomain: "olympiades-2025.firebaseapp.com",
-      databaseURL: "https://olympiades-2025-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "olympiades-2025",
-      storageBucket: "olympiades-2025.firebasestorage.app",
-      messagingSenderId: "516570819182",
-      appId: "1:516570819182:web:5c469efe13b71a6e64947f"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-
-    window.firebaseApp = app;
-    window.firebaseDB = database;
-    window.firebaseRef = ref;
-    window.firebasePush = push;
-    window.firebaseOnValue = onValue;
-  </script>
 
   <script src="script.js"></script>
 </body>
